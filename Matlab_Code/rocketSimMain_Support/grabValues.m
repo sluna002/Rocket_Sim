@@ -8,15 +8,15 @@ function output = grabValues(rpaStruct, indexMap, OFw, Pc, AcAt, AeAt)
 
 
 
-    OFStart = find(indexMap.OF(:,1) >= OFw,1);
-    OFEnd = find(indexMap.OF(:,1) <= OFw, 1, 'last');
+    OFStart = find(indexMap.OF(:,1) <= OFw, 1, 'last');
+    OFEnd = find(indexMap.OF(:,1) >= OFw,1);
     
     if isempty(OFStart) || isempty(OFEnd)
         error(['OF = ',num2str(OFw)]);
     end
 
-    PcStart = find(indexMap.Pc(:,1) >= Pc,1);
-    PcEnd = find(indexMap.Pc(:,1) <= Pc, 1, 'last');
+    PcStart = find(indexMap.Pc(:,1) <= Pc, 1, 'last');
+    PcEnd = find(indexMap.Pc(:,1) >= Pc,1);
     
     if isempty(PcStart) || isempty(PcEnd)
         error(['Pc = ',num2str(Pc)]);

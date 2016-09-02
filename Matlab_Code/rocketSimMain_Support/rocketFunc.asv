@@ -58,7 +58,7 @@ OFw = Mox_dot / Mf_dot;
 % end
 
 if OFw == 0 || OFw == inf || isnan(OFw)
-    Pc = 101e3;
+    Pc = 0;
     Thrust = 0;
 else
     values_mean = grabValues_MeanPressure(rpaStruct, indexMap, OFw, AcAt, AeAt);
@@ -67,10 +67,7 @@ else
 
     Pc = (Mox_dot + Mf_dot) * char_v * eta_c / At;
     
-    if Pc < 101e3
-        Pc = 101e3;
-    end
-    
+    if Pc
     values = grabValues(rpaStruct, indexMap, OFw, Pc, AcAt, AeAt);
 
     char_v = values(6);
