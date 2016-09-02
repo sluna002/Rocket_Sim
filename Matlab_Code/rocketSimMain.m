@@ -1,4 +1,10 @@
-%initialize variables (automate this later)
+clear;
+close all;
+clc;
+
+global root
+
+root = getRoot();
 
 global rhof rhoAir g OF Dp_fin Mr L eta_n Ar Cd Mox_total t_fin AcAt AeAt At; 
 %rhof: density of fuel              [kg/m3]
@@ -21,7 +27,7 @@ global rhof rhoAir g OF Dp_fin Mr L eta_n Ar Cd Mox_total t_fin AcAt AeAt At;
 
 global rpaStruct indexMap;
 
-rpaSet = extract('rpa_results.txt');
+rpaSet = extract([root,'rpa_results.txt']);
 rpaSet(:,2) = rpaSet(:,2) * 10^6; %Convert all pressures from MPa to Pa
 [rpaStruct, indexMap] = organizer(rpaSet);
 
@@ -41,6 +47,7 @@ combinations = generateRocketVariations(Dp_min, Dp_fin_max, minGrainThickness, M
 
 apogee = [];
 PercentFuelRemaining = [];
+MaxVel = [];
 resultSet = [];
 fprintf('%d many variations\n',size(combinations,1));
 tic
@@ -74,11 +81,13 @@ for ii = 1 : size(combinations,1)
 %     [T,Y] = ode45(@rocketFunc,t,init);
     [T,Y] = ode113(@rocketFunc,t,init);
     try
-        apogee(ii) = Y((find(diff(Y(:,5)) < 0,1)),5) * 3.281; %meters to feet
-        PercentFuelRemaining(ii) = Y(end,3) / Mf;
+        apogee(ii) = Y((find(diff(Y(:,5)) < 0,1)),5); %meters to feet
+        PercentFuelRemaining(ii) = Y(end,3) / Mf * 100;
+        MaxVel(ii) = max(Y(:,4));
     catch
         apogee(ii) = -1;
         PercentFuelRemaining(ii) = -1;
+        MaxVel(ii) = -1;
     end
     
     if mod(ii,500) == 0
@@ -91,13 +100,23 @@ for ii = 1 : size(combinations,1)
 end
 
 %THIS LINE NEEDS TO BE REVISED
-resultSet = [combinations,apogee',PercentFuelRemaining'];
+resultSet = [combinations,apogee',PercentFuelRemaining',MaxVel'];
 
-title = {'Diameter of Port','Outside Diameter','Mass of Oxidizer','O/F',...
-         'Ac/At','Ae/At','Apogee','Percent fuel remaining'};
+resultSet(:,[1,2]) = resultSet(:,[1,2]) / 0.025; % m to in
+resultSet(:,3) = resultSet(:,3) / 0.454; % kg to lb
+resultSet(:,7) = resultSet(:,7) * 3.281; % m to ft
+resultSet(:,9) = resultSet(:,9) * 2.237; % m/s to mph
+
+
+
+
+%CHANGE OUTPUT UNITS
+
+title = {'Diameter of Port (in)','Outside Diameter (in)','Mass of Oxidizer (lb)','O/F',...
+         'Ac/At','Ae/At','Apogee (ft)','Percent fuel remaining (%)','Max Velocity (mph)'};
 printable = vertcat(title,num2cell(resultSet));
-delete('rocketResults.xlsx');
-xlswrite('rocketResults.xlsx',printable);
+delete([root, 'rocketResults.xlsx']);
+xlswrite([root, 'rocketResults.xlsx'],printable);
 
 %%
 %Testing variables
