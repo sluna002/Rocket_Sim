@@ -82,7 +82,7 @@ for ii = 1 : size(combinations,1)
     [T,Y] = ode113(@rocketFunc,t,init);
     try
         apogee(ii) = Y((find(diff(Y(:,5)) < 0,1)),5); %meters to feet
-        PercentFuelRemaining(ii) = Y(end,3) / Mf * 100;
+        PercentFuelRemaining(ii) = Y(end,3) / Mf;
         MaxVel(ii) = max(Y(:,4));
     catch
         apogee(ii) = -1;
@@ -102,18 +102,18 @@ end
 %THIS LINE NEEDS TO BE REVISED
 resultSet = [combinations,apogee',PercentFuelRemaining',MaxVel'];
 
-resultSet(:,[1,2]) = resultSet(:,[1,2]) / 0.025; % m to in
-resultSet(:,3) = resultSet(:,3) / 0.454; % kg to lb
-resultSet(:,7) = resultSet(:,7) * 3.281; % m to ft
-resultSet(:,9) = resultSet(:,9) * 2.237; % m/s to mph
+resultSet(:,[1,2]) = resultSet(:,[1,2]) * 39.370;
+resultSet(:,3) = resultSet(:,3) * 2.205;
+resultSet(:,7) = resultSet(:,7) * 3.281;
+resultSet(:,9) = resultSet(:,9) 
 
 
 
 
 %CHANGE OUTPUT UNITS
 
-title = {'Diameter of Port (in)','Outside Diameter (in)','Mass of Oxidizer (lb)','O/F',...
-         'Ac/At','Ae/At','Apogee (ft)','Percent fuel remaining (%)','Max Velocity (mph)'};
+title = {'Diameter of Port','Outside Diameter','Mass of Oxidizer','O/F',...
+         'Ac/At','Ae/At','Apogee','Percent fuel remaining','Max Velocity'};
 printable = vertcat(title,num2cell(resultSet));
 delete([root, 'rocketResults.xlsx']);
 xlswrite([root, 'rocketResults.xlsx'],printable);
