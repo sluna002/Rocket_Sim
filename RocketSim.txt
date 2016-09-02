@@ -1,0 +1,5 @@
+Todo:
+- Create rocketFunc which will be compatable with ode45
+- Create model for N2O tank
+- Create model for structural integrety as a function of temp
+- Create function to initialize variables for rocketFunc
