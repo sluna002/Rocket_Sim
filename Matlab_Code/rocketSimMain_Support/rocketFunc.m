@@ -1,4 +1,4 @@
-function [var_p] = rocketFunc(t, var_in)
+function [var_dot] = rocketFunc(t, var_in)
 
 %Temporary assumptions
 % - Oxidizer mass flow rate is constant
@@ -84,7 +84,7 @@ Drag = 0.5 * rhoAir * vel^2 * Ar * Cd * -sign(vel);
 
 acceleration = (Thrust + Drag) / (Mr + Mf + Mox) - g;
 
-var_p = [Dp_dot, -Mox_dot, -Mf_dot, acceleration, vel]';
+var_dot = [Dp_dot, -Mox_dot, -Mf_dot, acceleration, vel]';
 
 end
 
