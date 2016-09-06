@@ -1,4 +1,4 @@
-function [func] = extrapolateFuncGen(x, pointx, pointy)
+function [func] = extrapolateFuncGen(pointx, pointy)
 %LAGRANGE   approx a point-defined function using the Lagrange polynomial interpolation
 %
 %      LAGRANGE(X,POINTX,POINTY) approx the function definited by the points:
@@ -11,21 +11,18 @@ function [func] = extrapolateFuncGen(x, pointx, pointy)
 %      7-oct-2001
 %
 n=size(pointx,2);
-L=ones(n,size(x,2));
+L=sym(ones(n,1));
 if (size(pointx,2)~=size(pointy,2))
    fprintf(1,'\nERROR!\nPOINTX and POINTY must have the same number of elements\n');
    y=NaN;
 else
-    
+   syms inp;
    for i=1:n
       for j=1:n
          if (i~=j)
-            L(i,:)=L(i,:).*(x-pointx(j))/(pointx(i)-pointx(j));
+            L(i)=L(i) * (inp-pointx(j))/(pointx(i)-pointx(j));
          end
       end
    end
-   y=0;
-   for i=1:n
-      y=y+pointy(i)*L(i,:);
-   end
+   func = symfun(sum(L .* pointy'), inp);
 end
