@@ -1,15 +1,15 @@
-function [ nosProp ] = getNosProp(nosPropSet, rhog)
+function [ nosProp ] = getNosProp(nosPropSet, inChar, input)
 
-rhogList = nosPropSet(:,4);
+list = nosPropSet(:,inChar);
 
-START = find(rhogList <= rhog,1,'last');
-END = find(rhogList >= rhog,1);
+START = find(list <= input,1,'last');
+END = find(list >= input,1);
 
 if isempty(START) || isempty(END)
     useless = 0;
 end
 
-nosProp = linearInterp(rhogList([START ; END]) ,nosPropSet(START:END,:), rhog);
+nosProp = linearInterp(list([START ; END]) ,nosPropSet(START:END,:), input);
 
 
 end

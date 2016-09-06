@@ -1,13 +1,13 @@
 function [var_dot] = odeMoxTester(t,var_in)
 
-global e D rhoLeft mu kTotal L Pc Ptank rhol rhog At hl hg v_choice Vtank nosPropSet Af
+global e D rhoLeft mu kTotal L Pc Ptank rhol rhog At hl hg v_choice Vtank nosPropSet Af char
 
 
 
-Mox = var_in(1);
-Utank = var_in(2);
-Mox_g = var_in(3);
-Mox_l = var_in(4);
+Utank = var_in(1);
+Mox_g = var_in(2);
+Mox_l = var_in(3);
+Mox = Mox_g + Mox_l;
 
 if Mox_l  <= 0
     Mox_l = 0;
@@ -34,7 +34,7 @@ elseif Mox_l > 0
         useless = 0;
     end
     
-    nosProp = getNosProp(nosPropSet, rhog);
+    nosProp = getNosProp(nosPropSet, char.rhog, rhog);
     
     rhol = nosProp(3);
     hl = nosProp(5);
@@ -47,11 +47,11 @@ elseif Mox_l > 0
     
 else
     
-    rhog = moxg / Vt;
+    rhog = Mox_g / Vtank;
     Mox_g_dot = -Mox_dot;
     Mox_l_dot = 0;
 
-    nosProp = getNosProp(nosPropSet, rhog);
+    nosProp = getNosProp(nosPropSet, char.rhog, rhog);
     
     hg = nosProp(6);
     Ptank = nosProp(2);
@@ -74,7 +74,7 @@ end
 
 
 
-var_dot = [-Mox_dot, dUt, Mox_g_dot, Mox_l_dot]';
+var_dot = [dUt, Mox_g_dot, Mox_l_dot]';
 
 
 

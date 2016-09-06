@@ -3,16 +3,11 @@ close all;
 clc;
 
 
-global e D mu kTotal L At rhol rhog hl hg Pc Ptank v_choice Vtank nosPropSet rhoLeft Af char Ttank
+global e D mu kTotal L At rhol rhog hl hg Pc Ptank v_choice Vtank nosPropSet rhoLeft Af char
 
 char.temp = 1;
 char.p = 2;
-char.rhol = 3;
-char.rhog = 4;
-char.hl = 5;
-char.hg = 6;
-char.dh = 7;
-
+char.rhol
 
 nosPropSet = xlsread('C:\Users\Steven\Google Drive\Rocket Project 2015 - 2016\Rocket Sim\Nox_Properties.xlsx');
 nosPropSet(:,2) = nosPropSet(:,2) * 1e3; %Convert from kPa to Pa
@@ -26,7 +21,6 @@ kTotal = 100000000; %Total headloss coefficient (Tank Valve k = 0.5, Injector k 
 L = 2 * 0.3048; %Feet to meters
 At = 7.9161132e-4; %m2 area of throat
 v_choice = 20;
-Ttank = 277.778;
 
 
 Mox = 15 * 0.454; %lb to kg
@@ -34,8 +28,7 @@ x = 0.95; % Fraction of Nos that is liquid
 Tatm = 277; %K
 
 Pc = 101e3;%300 * 6894.76; %psi to Pa
-nosProp = getNosProp(nosPropSet, char.temp, Ttank); %psi to Pa
-Ptank = nosProp(char.p);
+Ptank = 800 * 6894.76; %psi to Pa
 
 Mox_l = Mox * x;
 Mox_g = Mox * (1 - x);
@@ -45,30 +38,38 @@ rhol = 743.9;
 
 Vtank = Mox_g / rhog + Mox_l / rhol;
 
-rhol = nosProp(char.rhol);
-rhog = nosProp(char.rhog);
-hl = nosProp(char.hl);
-hg = nosProp(char.hg);
+Vl = Mox_l / rhol;
+Vu = Vtank - Vl;
+rhog = Mox_g / Vu;
+
+nosProp = getNosProp(nosPropSet, rhog);
+rhol = nosProp(3);
+rhog = nosProp(4);
+hl = nosProp(5);
+hg = nosProp(6);
+rhoLeft = rhol;
+
+
 
 
 ug = hg - Ptank / rhog;
 ul = hl - Ptank / rhol;
 
 
+
+
+
 Utank = Mox_g * ug + Mox_l * ul;
 
 
 init = [Utank, Mox_g, Mox_l];
-t = [0 20];
+t = [0 5];
 
 [T, Y] = ode113(@odeMoxTester, t, init);
 
-Mox = sum(Y(:,[2,3])') / 0.454;
+Y(:,1) = Y(:,1) / 0.454;
 
-Mox_dot = diff(Mox)' ./ diff(T);
-
-
-plot(T,Mox,'r',T(1:end-1),-Mox_dot,'b');
+plot(T,Y(:,1));
 
 
 % vel = fzero(@moxVelDiff,100)

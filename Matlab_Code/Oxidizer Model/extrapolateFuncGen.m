@@ -10,6 +10,14 @@ function [func] = extrapolateFuncGen(pointx, pointy)
 %      function wrote by: Carlo Castoldi carlo.castoldi(at)gmail.com
 %      7-oct-2001
 %
+if size(pointx,2) == 1
+    pointx = pointx';
+end
+
+if size(pointy,2) == 1
+    pointy = pointy';
+end
+
 n=size(pointx,2);
 L=sym(ones(n,1));
 if (size(pointx,2)~=size(pointy,2))
@@ -24,5 +32,6 @@ else
          end
       end
    end
-   func = symfun(sum(L .* pointy'), inp);
+   tempFunc = symfun(L .* pointy', inp);
+   func = symfun(sum(tempFunc(inp)),inp);
 end
