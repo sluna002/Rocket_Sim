@@ -1,6 +1,6 @@
 function [var_dot] = odeMoxTester(t,var_in)
 
-global e D rhoLeft mu kTotal L Pc Ptank rhol rhog At hl hg v_choice Vtank nosPropSet Af char
+global D kTotal Pc Ptank rhol rhog hl hg Vtank nosPropSet Af char
 
 
 

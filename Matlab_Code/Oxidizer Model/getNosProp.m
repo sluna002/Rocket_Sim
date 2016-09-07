@@ -6,7 +6,7 @@ START = find(list <= input,1,'last');
 END = find(list >= input,1);
 
 if isempty(START) || isempty(END)
-    useless = 0;
+    error(['Column ', num2str(inChar), ' does not with in range of ', num2str(input)]);
 end
 
 nosProp = linearInterp(list([START ; END]) ,nosPropSet(START:END,:), input);

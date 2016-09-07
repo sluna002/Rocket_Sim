@@ -1,9 +1,9 @@
 clear;
-close all;
+close;
 clc;
 
 
-global e D mu kTotal L At rhol rhog hl hg Pc Ptank v_choice Vtank nosPropSet rhoLeft Af char Ttank
+global D kTotal rhol rhog hl hg Pc Ptank Vtank nosPropSet Af char Ttank
 
 char.temp = 1;
 char.p = 2;
@@ -18,20 +18,13 @@ nosPropSet = xlsread('C:\Users\Steven\Google Drive\Rocket Project 2015 - 2016\Ro
 nosPropSet(:,2) = nosPropSet(:,2) * 1e3; %Convert from kPa to Pa
 nosPropSet(:,[5,6,7]) = nosPropSet(:,[5,6,7]) * 1e3; % Convert from kJ/kg to J/kg
 
-e = 0.15; %mm
 D = 0.5 * 0.0254; %in to m
 Af = 1.3; %Boiling flux factor
-mu = 15e-6; %N*s/m2
 kTotal = 44; %Total headloss coefficient (Tank Valve k = 0.5, Injector k = 1)
-L = 2 * 0.3048; %Feet to meters
-At = 7.9161132e-4; %m2 area of throat
-v_choice = 20;
-Ttank = 277.778; %K
-
+Ttank = 277.778; %K (THIS CANNOT BE OVER 298K OR DENSITY VALUES EXCEED DATASET)
 
 Mox = 15 * 0.454; %lb to kg
 x = 0.95; % Fraction of Nos that is liquid
-% Tatm = 277; %K
 
 Pc = 101e3;%300 * 6894.76; %psi to Pa
 nosProp = getNosProp(nosPropSet, char.temp, Ttank); %psi to Pa
