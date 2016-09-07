@@ -22,16 +22,16 @@ e = 0.15; %mm
 D = 0.5 * 0.0254; %in to m
 Af = 1.3; %Boiling flux factor
 mu = 15e-6; %N*s/m2
-kTotal = 100000000; %Total headloss coefficient (Tank Valve k = 0.5, Injector k = 1)
+kTotal = 44; %Total headloss coefficient (Tank Valve k = 0.5, Injector k = 1)
 L = 2 * 0.3048; %Feet to meters
 At = 7.9161132e-4; %m2 area of throat
 v_choice = 20;
-Ttank = 277.778;
+Ttank = 277.778; %K
 
 
 Mox = 15 * 0.454; %lb to kg
 x = 0.95; % Fraction of Nos that is liquid
-Tatm = 277; %K
+% Tatm = 277; %K
 
 Pc = 101e3;%300 * 6894.76; %psi to Pa
 nosProp = getNosProp(nosPropSet, char.temp, Ttank); %psi to Pa
@@ -40,13 +40,11 @@ Ptank = nosProp(char.p);
 Mox_l = Mox * x;
 Mox_g = Mox * (1 - x);
 
-rhog = 190;
-rhol = 743.9;
+rhog = nosProp(char.rhog);
+rhol = nosProp(char.rhol);
 
 Vtank = Mox_g / rhog + Mox_l / rhol;
 
-rhol = nosProp(char.rhol);
-rhog = nosProp(char.rhog);
 hl = nosProp(char.hl);
 hg = nosProp(char.hg);
 
@@ -61,7 +59,7 @@ Utank = Mox_g * ug + Mox_l * ul;
 init = [Utank, Mox_g, Mox_l];
 t = [0 20];
 
-[T, Y] = ode113(@odeMoxTester, t, init);
+[T, Y] = ode45(@odeMoxTester, t, init);
 
 Mox = sum(Y(:,[2,3])') / 0.454;
 

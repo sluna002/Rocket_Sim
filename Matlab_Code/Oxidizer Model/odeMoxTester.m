@@ -11,10 +11,11 @@ Mox = Mox_g + Mox_l;
 
 if Mox_l  <= 0
     Mox_l = 0;
-    Mox_dot = rhog * 0.25 * pi * D * sqrt( 2 * ( Ptank - Pc ) / (kTotal) );
+    Mox_dot = rhog * 0.25 * pi * D ^ 2 * sqrt( 2 * ( Ptank - Pc ) / (kTotal * rhog) );
 else  
-    Mox_dot = rhol * 0.25 * pi * D * sqrt( 2 * ( Ptank - Pc ) / (kTotal) );
+    Mox_dot = rhol * 0.25 * pi * D ^ 2* sqrt( 2 * ( Ptank - Pc ) / (kTotal * rhol) );
 end
+
 
 
 if Ptank <= Pc
@@ -50,7 +51,11 @@ else
     rhog = Mox_g / Vtank;
     Mox_g_dot = -Mox_dot;
     Mox_l_dot = 0;
-
+    
+    if rhog > 452
+        useless = 0;
+    end
+    
     nosProp = getNosProp(nosPropSet, char.rhog, rhog);
     
     hg = nosProp(6);
