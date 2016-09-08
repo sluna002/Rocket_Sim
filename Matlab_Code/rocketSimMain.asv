@@ -24,39 +24,9 @@ global rhof rhoAir g OF Dp_fin Mr L eta_n Ar Cd Mox_total t_fin AcAt AeAt At Pc;
 %AcAt: Area Chamber / Area Throat
 %AeAt: Area Exit / Area Throat                                         
 %At: Area Throat                    [m2]
-%Pc: pressure in the combusion chamber
 
-global D kTotal rhol rhog hl hg Ptank Vtank nosPropSet Af char Ttank;
-%D: diameter of feedline
-%kTotal: Total headloss coefficient of Nos injector system
-%Ptank: current pressure in Nos tank
-%rhol: density of liquid Nos
-%rhog: density of gaseous Nos
-%hl: specific enthalpy of liquid Nos
-%hg: specific enthalpy of gaseous Nos
-%Vtank: Volume of Nos tank
-%nosPropSet: A data set of Nos properties at vapor dome
-%Af: Boiling flux factor
-%char: A struct whos contents corrispond with column numbers of nosPropSet
-    %EX: char.temp = 1;
-    %    char.rhol = 3;
-    %The temperature characteristic is the first column of nosPropSet while 
-    %density of liquid nos is the third
-    
-char.temp = 1;
-char.p = 2;
-char.rhol = 3;
-char.rhog = 4;
-char.hl = 5;
-char.hg = 6;
-char.dh = 7;
-
-D = 0.5 * 0.0254; %in to m
-Af = 1.3; %Boiling flux factor
-kTotal = 44; %Total headloss coefficient (Tank Valve k = 0.5, Injector k = 1)
-Ttank = 277.778; %K (THIS CANNOT BE OVER 298K OR DENSITY VALUES EXCEED DATASET)
-x = 0.95; % Fraction of Nos that is liquid
-
+initializeMoxVar; %This script initializes all of the variables needed for 
+                  %the mass flow of oxidizer model
 
 global rpaStruct indexMap;
 
@@ -72,7 +42,7 @@ OF_list = 1:1:10; %List of overall OF ratios
 AcAt_list = indexMap.AcAt(:,1); %List of AreaChamber/AreaThroat ratios
 AeAt_list = indexMap.AeAt(:,1); %List of AreaExit/AreaThroat ratios
 
-nosPropSet = xlsread([root, 'Nos_Properties.xlsx']);
+nosPropSet = xlsread('C:\Users\Steven\Google Drive\Rocket Project 2015 - 2016\Rocket Sim\Nox_Properties.xlsx');
 nosPropSet(:,2) = nosPropSet(:,2) * 1e3; %Convert from kPa to Pa
 nosPropSet(:,[5,6,7]) = nosPropSet(:,[5,6,7]) * 1e3; % Convert from kJ/kg to J/kg
 
@@ -101,8 +71,6 @@ for ii = 1 : size(combinations,1)
     AeAt = combinations(ii,6);
     At = (1/AcAt) * 0.25 * pi * Dp_fin^2;
     Pc = 101e3;
-    nosProp = getNosProp(nosPropSet, char.temp, Ttank); %psi to Pa
-    Ptank = nosProp(char.p);
 
     Dp = combinations(ii,1); %Diameter of Port [m]
     Mox = combinations(ii,3); %Total mass of oxidizer left [kg]
@@ -111,22 +79,6 @@ for ii = 1 : size(combinations,1)
     L = 4 * Mox / ( pi * rhof * OF * (Dp_fin^2 - Dp^2));
     vel = 0; %Velocity of rocket [m/s]
     alt = 0; %Altitude of rocket [m]
-    
-    Mox_l = Mox * x;
-    Mox_g = Mox * (1 - x);
-
-    rhog = nosProp(char.rhog);
-    rhol = nosProp(char.rhol);
-
-    Vtank = Mox_g / rhog + Mox_l / rhol;
-
-    hl = nosProp(char.hl);
-    hg = nosProp(char.hg);
-
-    ug = hg - Ptank / rhog;
-    ul = hl - Ptank / rhol;
-
-    Utank = Mox_g * ug + Mox_l * ul;
 
     init = [Dp, Mf, Utank, Mox_g, Mox_l, vel, alt]; %Initial conditions of dynamic variables
     t = [0 50];

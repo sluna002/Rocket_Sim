@@ -7,6 +7,5 @@ findDir = 'Rocket Sim';
 index = strfind(workingDir, findDir);
 root = workingDir(1:(index + length( findDir ) ) );
 
-
 end
 

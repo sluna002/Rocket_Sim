@@ -1,12 +1,5 @@
-function [var_dot] = odeMoxTester(t,var_in)
+global D kTotal Ptank rhol rhog hl hg Vtank nosPropSet Af char
 
-global D kTotal Pc Ptank rhol rhog hl hg Vtank nosPropSet Af char
-
-
-
-Utank = var_in(1);
-Mox_g = var_in(2);
-Mox_l = var_in(3);
 Mox = Mox_g + Mox_l;
 
 if Mox_l  <= 0
@@ -79,10 +72,5 @@ end
 
 
 
-var_dot = [dUt, Mox_g_dot, Mox_l_dot]';
-
-
-
-
-end
+% var_dot = [dUt, Mox_g_dot, Mox_l_dot]';
 

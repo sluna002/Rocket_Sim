@@ -1,5 +1,4 @@
 
-
 global D kTotal rhol rhog hl hg Pc Ptank Vtank nosPropSet Af char Ttank
 
 char.temp = 1;
@@ -44,25 +43,3 @@ ul = hl - Ptank / rhol;
 
 
 Utank = Mox_g * ug + Mox_l * ul;
-
-
-init = [Utank, Mox_g, Mox_l];
-t = [0 20];
-
-[T, Y] = ode45(@odeMox, t, init);
-
-Mox = sum(Y(:,[2,3])') / 0.454;
-
-Mox_dot = diff(Mox)' ./ diff(T);
-
-
-plot(T,Mox,'r',T(1:end-1),-Mox_dot,'b');
-
-
-% vel = fzero(@moxVelDiff,100)
-
-
-
-
-
-
