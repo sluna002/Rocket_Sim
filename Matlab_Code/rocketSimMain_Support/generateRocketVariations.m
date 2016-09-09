@@ -1,8 +1,8 @@
-function combinations = generateRocketVariations(Dp_min, Dp_fin_max, minGrainThickness, Mox_list, OF_list, AcAt_list, AeAt_list)
+function combinations = generateRocketVariations(Dp_min, Dp_fin_max, minGrainThickness, Mox_list, OF_list, AcAt_list, AeAt_list, D_feed_list)
 
 grainGeometries = [];
 
-otherCombinations = combinationGenerator(Mox_list, OF_list, AcAt_list, AeAt_list);
+otherCombinations = combinationGenerator(Mox_list, OF_list, AcAt_list, AeAt_list, D_feed_list);
 numOther = size(otherCombinations,1);
 
 grainNumber = 0;

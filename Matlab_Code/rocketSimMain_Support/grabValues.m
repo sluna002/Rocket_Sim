@@ -28,13 +28,17 @@ function output = grabValues(rpaStruct, indexMap, OFw, Pc, AcAt, AeAt)
 
     valuesTemp = zeros(4,11);
 
-    valuesTemp(1,:) = rpaStruct.OF(OFStart).Pc(PcStart).AcAt(AcAtStart).AeAt(AeAtStart).values;
-    valuesTemp(2,:) = rpaStruct.OF(OFStart).Pc(PcEnd).AcAt(AcAtStart).AeAt(AeAtStart).values;
-    valuesTemp(3,:) = rpaStruct.OF(OFEnd).Pc(PcStart).AcAt(AcAtStart).AeAt(AeAtStart).values;
-    valuesTemp(4,:) = rpaStruct.OF(OFEnd).Pc(PcEnd).AcAt(AcAtStart).AeAt(AeAtStart).values;
-    
-    valuesTemp(1,:) = linearInterp(indexMap.OF(OFStart:OFEnd,1),valuesTemp(1:2,:),OFw);
-    valuesTemp(2,:) = linearInterp(indexMap.OF(OFStart:OFEnd,1),valuesTemp(3:4,:),OFw);
+    try
+        valuesTemp(1,:) = rpaStruct.OF(OFStart).Pc(PcStart).AcAt(AcAtStart).AeAt(AeAtStart).values;
+        valuesTemp(2,:) = rpaStruct.OF(OFStart).Pc(PcEnd).AcAt(AcAtStart).AeAt(AeAtStart).values;
+        valuesTemp(3,:) = rpaStruct.OF(OFEnd).Pc(PcStart).AcAt(AcAtStart).AeAt(AeAtStart).values;
+        valuesTemp(4,:) = rpaStruct.OF(OFEnd).Pc(PcEnd).AcAt(AcAtStart).AeAt(AeAtStart).values;
+
+        valuesTemp(1,:) = linearInterp(indexMap.OF(OFStart:OFEnd,1),valuesTemp(1:2,:),OFw);
+        valuesTemp(2,:) = linearInterp(indexMap.OF(OFStart:OFEnd,1),valuesTemp(3:4,:),OFw);
+    catch
+        useless = 0;
+    end
     
     output = linearInterp(indexMap.Pc(PcStart:PcEnd,1),valuesTemp(1:2,:),Pc);
     
