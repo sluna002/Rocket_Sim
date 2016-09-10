@@ -1,7 +1,6 @@
 function [var_dot] = rocketFunc(t, var_in)
 
 %Temporary assumptions
-% - Oxidizer mass flow rate is constant
 % - Motor is unbreakable
 % - Atmosphere has constant density
 
@@ -25,7 +24,7 @@ global rhof rhoAir g Dp_fin Mr L eta_n Ar Cd AcAt AeAt At Pc;
 %AeAt: Area Exit / Area Throat                                         
 %At: Area Throat                    [m2]
 
-global D_feed kTotal Ptank rhol rhog hl hg Vtank nosPropSet Af prop Pc_max;
+global D_feed kTotal Ptank rhol rhog hl hg Vtank nosPropSet Af prop ;
 %D_feed: diameter of feedline
 %kTotal: Total headloss coefficient of Nos injector system
 %Ptank: current pressure in Nos tank
@@ -148,8 +147,6 @@ else
     
     if Pc < 101e3
         Pc = 101e3;
-    elseif Pc > Pc_max
-        Pc_max = Pc;
     end
     
     values = grabValues(rpaStruct, indexMap, OFw, Pc, AcAt, AeAt);

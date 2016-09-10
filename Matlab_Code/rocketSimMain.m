@@ -1,5 +1,5 @@
 clear;
-close all;
+close;
 clc;
 
 global root
@@ -26,7 +26,7 @@ global rhof rhoAir g OF Dp_fin Mr L eta_n Ar Cd Mox_total t_fin AcAt AeAt At Pc;
 %At: Area Throat                    [m2]
 %Pc: pressure in the combusion chamber
 
-global D_feed kTotal rhol rhog hl hg Ptank Vtank nosPropSet Af prop Ttank Pc_max;
+global D_feed kTotal rhol rhog hl hg Ptank Vtank nosPropSet Af prop Ttank ;
 %D: diameter of feedline
 %kTotal: Total headloss coefficient of Nos injector system
 %Ptank: current pressure in Nos tank
@@ -63,10 +63,10 @@ rpaSet(:,2) = rpaSet(:,2) * 10^6; %Convert all pressures from MPa to Pa
 [rpaStruct, indexMap] = organizer(rpaSet);
 
 Dp_min = 0.5 * 0.025;%list of port diameters (inchs to meters)
-Dp_fin_max = 3 * 0.025;%list of outer diameter of grain (inchs to meters)
-minGrainThickness = 2.5 * 0.025;%The minimum thickness of the grain (difference between Dp_fin and Dp)
+Dp_fin_max = 1.5 * 0.025;%list of outer diameter of grain (inchs to meters)
+minGrainThickness = 1 * 0.025;%The minimum thickness of the grain (difference between Dp_fin and Dp)
 Mox_list = 5 * 0.454; %list of total oxidizer mass (lb to kg)
-OF_list = 2:1:10; %List of overall OF ratios
+OF_list = 3:7;%1:1:10; %List of overall OF ratios
 D_feed_list = [1/4, 5/16, 3/8] * 0.025; %List of feedline diameters (inchs to meters)
 AcAt_list = indexMap.AcAt(:,1); %List of AreaChamber/AreaThroat ratios
 AeAt_list = indexMap.AeAt(:,1); %List of AreaExit/AreaThroat ratios
@@ -79,16 +79,18 @@ nosPropSet(:,[5,6,7]) = nosPropSet(:,[5,6,7]) * 1e3; % Convert from kJ/kg to J/k
 %The weight of the bottle needs to be accounted for
 
 combinations = generateRocketVariations(Dp_min, Dp_fin_max, minGrainThickness, Mox_list, OF_list, AcAt_list, AeAt_list, D_feed_list);
+NN = size(combinations,1);
 
-apogee = [];
-PercentFuelRemaining = [];
-MaxVel = [];
-MaxPcList = [];
-fprintf('%d many variations\n',size(combinations,1));
+apogee = zeros(NN,1);
+PercentFuelRemaining = zeros(NN,1);
+MaxVel = zeros(NN,1);
+MaxPcList = zeros(NN,1);
+Isp_list = zeros(NN,1);
+fprintf('%d many variations\n',NN);
 
 timeElapsed = 0;
 tic
-for ii = 1 : size(combinations,1)
+for ii = 1 : NN
     rhof = 900;
     rhoAir = 1.225;
     g = 9.81;
@@ -107,8 +109,7 @@ for ii = 1 : size(combinations,1)
     nosProp = getNosProp(nosPropSet, prop.temp, Ttank); %psi to Pa
     Ptank = nosProp(prop.p);
     
-    Pc_max = 0;
-
+    
     Dp = combinations(ii,1); %Diameter of Port [m]
     Mox = combinations(ii,3); %Total mass of oxidizer left [kg]
     Mox_total = Mox;
@@ -134,32 +135,45 @@ for ii = 1 : size(combinations,1)
     Utank = Mox_g * ug + Mox_l * ul;
 
     init = [Dp, Mf, Utank, Mox_g, Mox_l, vel, alt]; %Initial conditions of dynamic variables
-    t = [0 40];
+    t = [0 60];
 
 %     useless = rocketFunc(1,init);
 %     [T,Y] = ode45(@rocketFunc,t,init);
     [T,Y] = ode113(@rocketFunc,t,init);
+    
+    Ptank = nosProp(prop.p);
+    Pc = 101e3;
+    rhog = nosProp(prop.rhog);
+    rhol = nosProp(prop.rhol);
+    hl = nosProp(prop.hl);
+    hg = nosProp(prop.hg);
+    [Thrust_list, Pc_list, Ptank_list, Isp] = getRocketPerformace(T, Y);
+    plot(T, Thrust_list);
+    close;
+    
     try
         apogee(ii) = Y((find(diff(Y(:,7)) < 0,1)),7);
         PercentFuelRemaining(ii) = Y(end,2) / Mf * 100;
         MaxVel(ii) = max(Y(:,6));
-        MaxPcList(ii) = Pc_max;
+        MaxPcList(ii) = max(Pc_list);
+        Isp_list(ii) = Isp;
     catch Ex
         apogee(ii) = -1;
         PercentFuelRemaining(ii) = -1;
         MaxVel(ii) = -1;
         MaxPcList(ii) = -1;
+        Isp_list(ii) = -1;
     end
     
     if mod(ii,10) == 0
         clc;
-        fprintf('%d many variations\n',size(combinations,1));
+        fprintf('%d many variations\n',NN);
 %         disp([num2str(ii), ' runs complete']);
         
         timeElapsed = timeElapsed + toc;
-        timeRemaining = duration(0,0,ii/timeElapsed * (size(combinations,1) - ii));
+        timeRemaining = duration(0,0,ii/timeElapsed * (NN - ii));
         sizeShow = 30;
-        showNum = floor(ii/size(combinations,1)*sizeShow);
+        showNum = floor(ii/NN*sizeShow);
         disp(['[',repmat('#',1,showNum), repmat(' ',1,sizeShow-showNum),']']);
         disp(['Time remaining: ', char(timeRemaining)]);
 %         disp(['Total time elapsed: ', num2str(timeElapsed),'s']);
@@ -169,7 +183,7 @@ for ii = 1 : size(combinations,1)
 %     close all;
 end
 
-resultSet = [combinations,apogee',PercentFuelRemaining',MaxVel',MaxPcList'];
+resultSet = [combinations, apogee, PercentFuelRemaining, MaxVel, MaxPcList, Isp_list];
 
 resultSet(:,[1,2]) = resultSet(:,[1,2]) / 0.025; % m to in
 resultSet(:,3) = resultSet(:,3) / 0.454; % kg to lb
@@ -185,7 +199,7 @@ resultSet(:,11) = resultSet(:,11) / 6894.76; % Pa to psi
 
 title = {'Diameter of Port (in)','Outside Diameter (in)','Mass of Oxidizer (lb)','O/F',...
          'Ac/At','Ae/At','Feedline Diameter (in)','Apogee (ft)','Percent fuel remaining (%)',...
-         'Max Velocity (mph)','Max Chamber Pressure (psi)'};
+         'Max Velocity (mph)','Max Chamber Pressure (psi)','Isp (s)'};
 printable = vertcat(title,num2cell(resultSet));
 delete([root, 'rocketResults.xlsx']);
 xlswrite([root, 'rocketResults.xlsx'],printable);
